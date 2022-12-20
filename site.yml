@@ -1,0 +1,30 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Install Epel
+      ansible.builtin.include_role:
+        name: geerlingguy.repo-epel 
+
+    - name: Install pip and boto3
+      ansible.builtin.include_role:
+        name: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - name: pip
+          - name: boto3
+        pip_executable: pip3
+        pip_package: python3-pip
+
+    - name: List keys simple
+      amazon.aws.s3_object:
+        access_key: "{{ aws_access_key_id }}"
+        bucket: mamono210 
+        mode: list 
+        secret_key: "{{ aws_secret_access_key }}"
+      register: s3_keys
+
+    - name: Var dump
+      ansible.builtin.debug:
+        var: s3_keys
